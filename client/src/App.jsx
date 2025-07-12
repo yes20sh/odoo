@@ -20,17 +20,13 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Home />
-            </PrivateRoute>
-          }
-        />
+        {/* ✅ Public route */}
+        <Route path="/" element={<Home />} />
 
+        {/* ✅ Public route */}
         <Route path="/login" element={<Login />} />
 
+        {/* ✅ Protected routes */}
         <Route
           path="/profile"
           element={
@@ -39,7 +35,6 @@ const App = () => {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/create-request"
           element={
@@ -48,7 +43,6 @@ const App = () => {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/my-requests"
           element={
@@ -57,7 +51,6 @@ const App = () => {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/swap/:userId"
           element={
