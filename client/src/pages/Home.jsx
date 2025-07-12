@@ -6,7 +6,7 @@ import SwapRequestModal from '../components/SwapRequestModal';
 import api from '../services/api';
 
 const Home = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]); // ✅ Start with empty array
   const [query, setQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -17,8 +17,8 @@ const Home = () => {
   const fetchUsers = async () => {
     try {
       const res = await api.get(`/users?search=${query}&page=${currentPage}`);
-      setUsers(res.data.users);
-      setTotalPages(res.data.totalPages || 1);
+      setUsers(res.data?.users || []); // ✅ Always fallback to [] in case API returns undefined
+      setTotalPages(res.data?.totalPages || 1);
     } catch (err) {
       console.error('Failed to fetch users:', err);
     }
@@ -27,7 +27,7 @@ const Home = () => {
   const fetchMySkills = async () => {
     try {
       const res = await api.get('/users/me');
-      setMySkills(res.data.skillsOffered || []);
+      setMySkills(res.data?.skillsOffered || []);
     } catch (err) {
       console.error('Failed to fetch your skills:', err);
     }
@@ -79,9 +79,13 @@ const Home = () => {
         </div>
 
         <div className="space-y-4">
-          {users.map((user) => (
-            <ProfileCard key={user._id} user={user} onRequestClick={handleRequestClick} />
-          ))}
+          {users.length > 0 ? (
+            users.map((user) => (
+              <ProfileCard key={user._id} user={user} onRequestClick={handleRequestClick} />
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No users found.</p>
+          )}
         </div>
 
         <Pagination
@@ -91,13 +95,15 @@ const Home = () => {
         />
       </div>
 
-      <SwapRequestModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleModalSubmit}
-        user={selectedUser}
-        mySkills={mySkills}
-      />
+      {selectedUser && (
+        <SwapRequestModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleModalSubmit}
+          user={selectedUser}
+          mySkills={mySkills}
+        />
+      )}
     </div>
   );
 };
