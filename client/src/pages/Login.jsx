@@ -1,80 +1,97 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import api from '../services/api';
 
 const Login = () => {
-  const [identifier, setIdentifier] = useState(''); // email or username
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    identifier: '',
+    password: ''
+  });
   const [error, setError] = useState('');
-  const { setUser } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      const res = await api.post('/auth/login', { identifier, password });
-      setUser(res.data.user);
-      navigate('/');
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${apiUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        navigate('/'); // immediately redirect to homepage
+      } else {
+        setError(data.message || 'Login failed');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl p-8 w-full max-w-md drop-shadow-md">
-        <h1 className="text-2xl font-semibold mb-2">Login</h1>
-        <p className="text-gray-600 text-xs mb-6">Login with your email or username</p>
+    <div className="min-h-screen bg-zinc-900 flex flex-col justify-center items-center">
+      <div className="bg-zinc-800 p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-center text-2xl font-semibold text-white mb-4">Login</h2>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-semibold mb-1">Email / Username</label>
+        {error && <div className="text-red-500 text-sm mb-4 text-center">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="identifier" className="block text-gray-300">Email or Username</label>
             <input
               type="text"
-              placeholder="email@example.com or yourUsername"
-              className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              id="identifier"
+              name="identifier"
+              value={formData.identifier}
+              onChange={handleChange}
+              className="w-full p-2 mt-1 bg-zinc-700 text-white border border-zinc-600 rounded-md"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold mb-1">Password</label>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-300">Password</label>
             <input
               type="password"
-              placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full p-2 mt-1 bg-zinc-700 text-white border border-zinc-600 rounded-md"
               required
             />
           </div>
-
-          {error && <p className="text-xs text-red-500">{error}</p>}
 
           <button
             type="submit"
-            className="bg-black text-white rounded-md py-3 text-sm font-semibold"
+            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+            disabled={loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="text-center text-xs mt-4">
-          Forgot your password?{' '}
-          <span className="text-purple-600 font-semibold cursor-pointer hover:underline">
-            Reset here
-          </span>
-        </p>
-
-        <p className="text-center text-gray-900 text-xs mt-4">
-          Don’t have an account?{' '}
-          <a href="/signup" className="text-purple-700 font-semibold hover:underline">
-            Sign up
-          </a>
-        </p>
+        <div className="text-center mt-4">
+          <a href="#" className="text-blue-400 text-sm">Forgot username/password?</a>
+        </div>
       </div>
     </div>
   );

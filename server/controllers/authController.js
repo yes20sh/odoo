@@ -4,12 +4,11 @@ import { User } from '../models/User.js';
 
 const createToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
+}
 
 // Signup
 export const signupUser = async (req, res) => {
   const { name, email, password, username } = req.body;
-
   try {
     if (await User.findOne({ email })) {
       return res.status(409).json({ message: 'Email already registered' });
@@ -61,3 +60,5 @@ export const logoutUser = (req, res) => {
   res.clearCookie('token');
   res.json({ message: 'Logged out' });
 };
+
+

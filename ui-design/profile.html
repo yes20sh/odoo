@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Function to add a new skill
+    function addSkill(skillType) {
+      const skillInput = document.getElementById(`${skillType}-input`);
+      const skillContainer = document.getElementById(`${skillType}-container`);
+      const skillValue = skillInput.value.trim();
+
+      if (skillValue) {
+        // Create a new skill tag
+        const skillTag = document.createElement('span');
+        skillTag.classList.add('bg-gray-200', 'text-black', 'px-3', 'py-1', 'rounded-full', 'm-1');
+        skillTag.textContent = skillValue;
+
+        // Add remove button to the skill tag
+        const removeButton = document.createElement('button');
+        removeButton.textContent = '×';
+        removeButton.classList.add('ml-2', 'text-red-500', 'cursor-pointer');
+        removeButton.onclick = function() {
+          skillTag.remove();
+        };
+
+        skillTag.appendChild(removeButton);
+
+        // Append the skill tag to the skill container
+        skillContainer.appendChild(skillTag);
+        
+        // Clear input field after adding the skill
+        skillInput.value = '';
+      }
+    }
+  </script>
+</head>
+<body class="bg-white text-black p-10">
+
+  <!-- Profile Content Section -->
+  <div class="p-6 space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Left Column: Name, Location, Skills, Availability -->
+      <div class="space-y-6">
+        <!-- Name and Location -->
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium">Name</label>
+            <input type="text" id="name" class="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md" placeholder="Your Name">
+          </div>
+          <div>
+            <label for="location" class="block text-sm font-medium">Location</label>
+            <input type="text" id="location" class="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md" placeholder="Your Location">
+          </div>
+        </div>
+
+        <!-- Skills Offered and Skills Wanted -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium">Skills Offered</label>
+            <div class="flex flex-wrap gap-2 mt-1" id="skills-offered-container">
+              <!-- Skills will appear here -->
+            </div>
+            <input type="text" id="skills-offered-input" class="w-full p-2 mt-2 bg-gray-100 border border-gray-300 rounded-md" placeholder="Add a skill">
+            <button onclick="addSkill('skills-offered')" class="mt-2 text-blue-500">Add Skill</button>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium">Skills Wanted</label>
+            <div class="flex flex-wrap gap-2 mt-1" id="skills-wanted-container">
+              <!-- Skills will appear here -->
+            </div>
+            <input type="text" id="skills-wanted-input" class="w-full p-2 mt-2 bg-gray-100 border border-gray-300 rounded-md" placeholder="Add a skill">
+            <button onclick="addSkill('skills-wanted')" class="mt-2 text-blue-500">Add Skill</button>
+          </div>
+        </div>
+
+        <!-- Availability and Profile Visibility -->
+        <div class="space-y-4">
+          <div>
+            <label for="availability" class="block text-sm font-medium">Availability</label>
+            <input type="text" id="availability" class="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md" placeholder="e.g., Weekends">
+          </div>
+          <div>
+            <label for="profile-visibility" class="block text-sm font-medium">Profile</label>
+            <input type="text" id="profile-visibility" class="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md" placeholder="Public">
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Profile Photo Section -->
+      <div class="space-x-6 flex flex-col items-center">
+        <div class="w-32 h-32 rounded-full border-2 border-gray-300 overflow-hidden">
+          <img src="https://via.placeholder.com/100" alt="Profile Photo" class="object-cover w-full h-full">
+        </div>
+        <div class="mt-4">
+          <button class="text-blue-500">Add/Edit</button>
+          <button class="text-red-500 ml-2">Remove</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

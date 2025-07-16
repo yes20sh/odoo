@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Swap Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Function to update the status when accepting or rejecting a request
+    function updateStatus(action, element) {
+      const statusText = element.querySelector('.status');
+      if (action === 'accept') {
+        statusText.textContent = 'Accepted';
+        statusText.classList.remove('text-gray-500', 'text-red-500');
+        statusText.classList.add('text-green-500');
+      } else if (action === 'reject') {
+        statusText.textContent = 'Rejected';
+        statusText.classList.remove('text-gray-500', 'text-green-500');
+        statusText.classList.add('text-red-500');
+      }
+    }
+  </script>
+</head>
+<body class="bg-white text-black p-6">
+
+  <!-- Main Content Section -->
+  <div class="space-y-6">
+    <div class="w-full flex gap-5 justify-end items-center mb-6">
+           <input type="text" placeholder="Search..." class="p-2 rounded-md bg-gray-200 text-black">
+      <select class="bg-gray-200 text-black p-2 rounded-md">
+        <option>Availability</option>
+        <option>Available</option>
+        <option>Not Available</option>
+      </select>
+   
+    </div>
+
+    <!-- Profile Card 1 -->
+    <div class="flex items-center justify-between bg-gray-100 p-4 rounded-lg space-x-4 shadow-md">
+      <div class="flex items-center space-x-4">
+        <div class="w-16 h-16 rounded-full border-2 border-black overflow-hidden">
+          <img src="https://via.placeholder.com/100" alt="Profile Photo" class="object-cover w-full h-full">
+        </div>
+        <div>
+          <div class="font-semibold">Marc Demo</div>
+          <div class="text-sm text-gray-400">Skills Offered: JavaScript</div>
+          <div class="text-sm text-gray-400">Skills Wanted: Photoshop</div>
+          <div class="text-sm text-gray-400">Rating: 3.9/5</div>
+        </div>
+      </div>
+      <div class="text-sm flex flex-col justify-center items-center">
+        <div class="status text-gray-500">Pending</div>
+        <div class="space-x-2 mt-2">
+          <button onclick="updateStatus('accept', this.parentElement)" class="bg-green-500 text-white px-3 py-1 rounded-md">Accept</button>
+          <button onclick="updateStatus('reject', this.parentElement)" class="bg-red-500 text-white px-3 py-1 rounded-md">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Card 2 -->
+    <div class="flex items-center justify-between bg-gray-100 p-4 rounded-lg space-x-4 shadow-md">
+      <div class="flex items-center space-x-4">
+        <div class="w-16 h-16 rounded-full border-2 border-black overflow-hidden">
+          <img src="https://via.placeholder.com/100" alt="Profile Photo" class="object-cover w-full h-full">
+        </div>
+        <div>
+          <div class="font-semibold">Name</div>
+          <div class="text-sm text-gray-400">Skills Offered: Graphic Design</div>
+          <div class="text-sm text-gray-400">Skills Wanted: Python</div>
+          <div class="text-sm text-gray-400">Rating: 3.9/5</div>
+        </div>
+      </div>
+      <div class="text-sm flex flex-col justify-center items-center">
+        <div class="status text-red-500">Rejected</div>
+        <div class="space-x-2 mt-2">
+          <button onclick="updateStatus('accept', this.parentElement)" class="bg-green-500 text-white px-3 py-1 rounded-md">Accept</button>
+          <button onclick="updateStatus('reject', this.parentElement)" class="bg-red-500 text-white px-3 py-1 rounded-md">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center space-x-2 mt-6">
+      <button class="bg-gray-200 text-black p-2 rounded-md">←</button>
+      <button class="bg-gray-200 text-black p-2 rounded-md">1</button>
+      <button class="bg-gray-200 text-black p-2 rounded-md">2</button>
+      <button class="bg-gray-200 text-black p-2 rounded-md">3</button>
+      <button class="bg-gray-200 text-black p-2 rounded-md">→</button>
+    </div>
+
+  </div>
+
+</body>
+</html>

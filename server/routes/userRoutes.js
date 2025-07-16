@@ -1,15 +1,9 @@
 import express from 'express';
-import {
-  getAllPublicUsers,
-  getUserProfile,
-  updateUserProfile
-} from '../controllers/userController.js';
-import { requireAuth } from '../middleware/authMiddleware.js';
+import { updateUserProfile, getUserProfile } from '../controllers/userController.js';
 
 const router = express.Router();
 
-router.get('/', getAllPublicUsers);                    // GET /api/users
-router.get('/:id', getUserProfile);                   // GET /api/users/:id
-router.put('/update/me', requireAuth, updateUserProfile); // PUT /api/users/update/me
+router.get('/:id', getUserProfile);               // Get user profile
+router.patch('/:id/profile', updateUserProfile);  // Update user profile
 
 export default router;

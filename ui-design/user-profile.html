@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Swap Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+
+    
+
+    <!-- Main Content -->
+    <main class="p-8">
+        <!-- Request Section -->
+        <section class="bg-gray-100 p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
+            <div class="flex items-center space-x-4">
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600">Request</button>
+                <div class="text-xl font-semibold">Marc Demo</div>
+            </div>
+
+            <!-- Profile and Skills Section -->
+            <div class="mt-6">
+                <div class="flex justify-between p-10 items-center space-x-6">
+                    <div class="space-y-2">
+                        <!-- Skills Offered and Wanted -->
+                        <div class="space-y-1">
+                            <div class="font-semibold">Skills Offered</div>
+                            <div class="text-sm text-gray-600">HTML, CSS, JavaScript</div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="font-semibold">Skills Wanted</div>
+                            <div class="text-sm text-gray-600">React, Node.js</div>
+                        </div>
+                    </div>
+                         <!-- Profile Photo -->
+                    <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
+                        <img src="https://avatar.iran.liara.run/public/30" alt="Profile" class="rounded-full">
+                    </div>
+                </div>
+
+                <!-- Rating and Feedback Section -->
+                <div class="mt-6 space-y-4">
+                    <div class="text-lg font-semibold text-gray-800">Rating and Feedback</div>
+
+                    <div class="space-y-2">
+                        <!-- Rating -->
+                        <div class="flex space-x-2">
+                            <label for="rating" class="text-sm text-gray-700">Rating:</label>
+                            <input type="number" id="rating" name="rating" min="1" max="5" class="px-2 py-1 rounded bg-white text-gray-900 w-16 border border-gray-300">
+                        </div>
+                        <!-- Feedback -->
+                        <div class="space-y-2">
+                            <label for="feedback" class="text-sm text-gray-700">Feedback:</label>
+                            <textarea id="feedback" name="feedback" rows="4" class="w-full px-3 py-2 rounded bg-white text-gray-900 border border-gray-300" placeholder="Leave your feedback..."></textarea>
+                        </div>
+                    </div>
+
+                    <button id="submitFeedback" class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600">Submit Feedback</button>
+                </div>
+
+                <!-- Section to display the submitted feedback -->
+                <div id="feedbackDisplay" class="mt-6 hidden space-y-4">
+                    <div class="font-semibold text-lg text-gray-800">Your Submitted Feedback:</div>
+                    <div id="submittedRating" class="text-sm text-gray-700">Rating: </div>
+                    <div id="submittedFeedback" class="text-sm text-gray-700">Feedback: </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Script for Feedback Submission -->
+    <script>
+        document.getElementById('submitFeedback').addEventListener('click', function() {
+            const rating = document.getElementById('rating').value;
+            const feedback = document.getElementById('feedback').value;
+
+            if (rating && feedback) {
+                // Display the submitted feedback
+                document.getElementById('submittedRating').innerText = `Rating: ${rating}`;
+                document.getElementById('submittedFeedback').innerText = `Feedback: ${feedback}`;
+
+                // Make the feedback display section visible
+                document.getElementById('feedbackDisplay').classList.remove('hidden');
+
+                // Optionally, clear the fields after submission
+                document.getElementById('rating').value = '';
+                document.getElementById('feedback').value = '';
+            } else {
+                alert("Please fill in both fields.");
+            }
+        });
+    </script>
+    
+</body>
+</html>

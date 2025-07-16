@@ -1,196 +1,218 @@
-import { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import SkillCard from '../components/SkillCard';
-import api from '../services/api';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const Profile = () => {
-  const [profile, setProfile] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({
+  const { id } = useParams();
+  const [formData, setFormData] = useState({
     name: '',
+    location: '',
+    availability: '',
+    profileVisibility: '',
+    profilePhoto: '',
     skillsOffered: [],
     skillsWanted: [],
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const [skillInputs, setSkillInputs] = useState({ offered: '', wanted: '' });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const fetchProfile = async () => {
-    try {
-      const res = await api.get('/users/me');
-      setProfile(res.data);
-      setForm({
-        name: res.data.name || '',
-        skillsOffered: res.data.skillsOffered || [],
-        skillsWanted: res.data.skillsWanted || [],
-      });
-    } catch (err) {
-      console.error('Failed to fetch profile:', err);
-    }
-  };
+  const api = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    axios
+      .get(`${api}/users/${id}`, { withCredentials: true })
+      .then((res) => setFormData(res.data))
+      .catch((err) => console.error('Failed to fetch user:', err));
+  }, [id]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleArrayChange = (field, index, value) => {
-    const updated = [...form[field]];
-    updated[index] = value;
-    setForm({ ...form, [field]: updated });
-  };
+  const handleSkillAdd = (type) => {
+    const skill = skillInputs[type].trim();
+    if (!skill) return;
 
-  const handleAddSkill = (field) => {
-    setForm({ ...form, [field]: [...form[field], ''] });
-  };
-
-  const handleRemoveSkill = (field, index) => {
-    const updated = [...form[field]];
-    updated.splice(index, 1);
-    setForm({ ...form, [field]: updated });
-  };
-
-  const handleUpdate = async () => {
-    try {
-      await api.put('/users/update/me', form);
-      setEditing(false);
-      fetchProfile();
-    } catch (err) {
-      console.error('Update failed:', err);
-      alert('Update failed');
+    const field = type === 'offered' ? 'skillsOffered' : 'skillsWanted';
+    if (!formData[field].includes(skill)) {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: [...prev[field], skill],
+      }));
+      setSkillInputs((prev) => ({ ...prev, [type]: '' }));
     }
   };
 
-  if (!profile) return <div className="text-center mt-10">Loading...</div>;
+  const handleSkillRemove = (type, skill) => {
+    const field = type === 'offered' ? 'skillsOffered' : 'skillsWanted';
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((s) => s !== skill),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const res = await axios.patch(`${api}/users/${id}/profile`, formData, {
+        withCredentials: true,
+      });
+      setMessage('Profile updated successfully!');
+      setFormData(res.data);
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Update failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen">
-      <Navbar />
-      <div className="max-w-3xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-md p-6 flex items-center gap-4 mb-6">
-          <img
-            src={profile.profilePhoto || 'https://via.placeholder.com/80'}
-            alt="Profile"
-            className="w-16 h-16 rounded-full border"
-          />
-          <div>
-            <h2 className="text-xl font-semibold">{profile.username}</h2>
-            <p className="text-sm text-gray-600">{profile.email}</p>
-          </div>
-        </div>
+    <div className="bg-white text-black p-10 min-h-screen">
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Name</label>
+                <input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md"
+                  placeholder="Your Name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Location</label>
+                <input
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  className="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md"
+                  placeholder="Your Location"
+                />
+              </div>
+            </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            {editing ? (
-              <input
-                type="text"
-                name="name"
-                className="w-full border px-4 py-2 rounded-md text-sm"
-                value={form.name}
-                onChange={handleChange}
+            <div className="space-y-6">
+              {/* Skills Offered */}
+              <div>
+                <label className="block text-sm font-medium">Skills Offered</label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {formData.skillsOffered.map((skill, i) => (
+                    <span key={i} className="bg-gray-200 text-black px-3 py-1 rounded-full m-1">
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleSkillRemove('offered', skill)}
+                        className="ml-2 text-red-500"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  value={skillInputs.offered}
+                  onChange={(e) => setSkillInputs({ ...skillInputs, offered: e.target.value })}
+                  className="w-full p-2 mt-2 bg-gray-100 border border-gray-300 rounded-md"
+                  placeholder="Add a skill"
+                />
+                <button type="button" onClick={() => handleSkillAdd('offered')} className="mt-2 text-blue-500">
+                  Add Skill
+                </button>
+              </div>
+
+              {/* Skills Wanted */}
+              <div>
+                <label className="block text-sm font-medium">Skills Wanted</label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {formData.skillsWanted.map((skill, i) => (
+                    <span key={i} className="bg-gray-200 text-black px-3 py-1 rounded-full m-1">
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleSkillRemove('wanted', skill)}
+                        className="ml-2 text-red-500"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  value={skillInputs.wanted}
+                  onChange={(e) => setSkillInputs({ ...skillInputs, wanted: e.target.value })}
+                  className="w-full p-2 mt-2 bg-gray-100 border border-gray-300 rounded-md"
+                  placeholder="Add a skill"
+                />
+                <button type="button" onClick={() => handleSkillAdd('wanted')} className="mt-2 text-blue-500">
+                  Add Skill
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Availability</label>
+                <input
+                  name="availability"
+                  value={formData.availability}
+                  onChange={handleChange}
+                  className="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md"
+                  placeholder="e.g., Weekends"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Profile Visibility</label>
+                <input
+                  name="profileVisibility"
+                  value={formData.profileVisibility}
+                  onChange={handleChange}
+                  className="w-full p-2 mt-1 bg-gray-100 border border-gray-300 rounded-md"
+                  placeholder="Public or Private"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-x-6 flex flex-col items-center">
+            <div className="w-32 h-32 rounded-full border-2 border-gray-300 overflow-hidden">
+              <img
+                src={formData.profilePhoto || 'https://via.placeholder.com/100'}
+                alt="Profile"
+                className="object-cover w-full h-full"
               />
-            ) : (
-              <p>{profile.name}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Skills Offered</label>
-            {editing ? (
-              form.skillsOffered.map((skill, idx) => (
-                <div key={idx} className="flex items-center gap-2 mb-2">
-                  <input
-                    type="text"
-                    className="flex-1 border px-3 py-1 text-sm rounded-md"
-                    value={skill}
-                    onChange={(e) => handleArrayChange('skillsOffered', idx, e.target.value)}
-                  />
-                  <button
-                    onClick={() => handleRemoveSkill('skillsOffered', idx)}
-                    className="text-red-500 text-xs"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {profile.skillsOffered.map((skill, idx) => (
-                  <SkillCard key={idx} skill={skill} />
-                ))}
-              </div>
-            )}
-            {editing && (
-              <button
-                onClick={() => handleAddSkill('skillsOffered')}
-                className="text-purple-600 text-xs mt-2"
-              >
-                + Add Skill
-              </button>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Skills Wanted</label>
-            {editing ? (
-              form.skillsWanted.map((skill, idx) => (
-                <div key={idx} className="flex items-center gap-2 mb-2">
-                  <input
-                    type="text"
-                    className="flex-1 border px-3 py-1 text-sm rounded-md"
-                    value={skill}
-                    onChange={(e) => handleArrayChange('skillsWanted', idx, e.target.value)}
-                  />
-                  <button
-                    onClick={() => handleRemoveSkill('skillsWanted', idx)}
-                    className="text-red-500 text-xs"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {profile.skillsWanted.map((skill, idx) => (
-                  <SkillCard key={idx} skill={skill} />
-                ))}
-              </div>
-            )}
-            {editing && (
-              <button
-                onClick={() => handleAddSkill('skillsWanted')}
-                className="text-purple-600 text-xs mt-2"
-              >
-                + Add Skill
-              </button>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-4 mt-4">
-            {editing ? (
-              <>
-                <button onClick={() => setEditing(false)} className="text-sm text-gray-600">
-                  Cancel
-                </button>
-                <button
-                  onClick={handleUpdate}
-                  className="bg-black text-white text-sm px-4 py-2 rounded-md"
-                >
-                  Save Changes
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="bg-black text-white text-sm px-4 py-2 rounded-md"
-              >
-                Edit Profile
-              </button>
-            )}
+            </div>
+            <input
+              name="profilePhoto"
+              value={formData.profilePhoto}
+              onChange={handleChange}
+              placeholder="Image URL"
+              className="p-2 mt-4 bg-gray-100 border border-gray-300 rounded-md w-full"
+            />
           </div>
         </div>
-      </div>
+
+        <div className="mt-6 flex flex-col items-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            {loading ? 'Saving...' : 'Save Profile'}
+          </button>
+          {message && <p className="text-green-600 mt-2">{message}</p>}
+        </div>
+      </form>
     </div>
   );
 };
